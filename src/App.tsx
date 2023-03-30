@@ -6,7 +6,9 @@ import SearchBar from "./components/SearchBar";
 function App() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <SearchBar />
+      <div className="mt-2">
+        <SearchBar />
+      </div>
       <div className="grid grid-cols-2 h-full mt-2 p-2">
         <div>
           <h4 className="text-xl font-semibold">Expected phrase:</h4>
@@ -28,6 +30,7 @@ function App() {
           </div>
 
           <div className="mt-10 flex justify-center">
+            {/* // TODO: change state to STOPPED, RUNNING, DONE */}
             <Alert>Done!</Alert>
           </div>
         </div>
@@ -35,7 +38,9 @@ function App() {
           <p className="font-semibold">Population set:</p>
           <ul>
             {Array.from({ length: 100 }).map((_, index) => (
-              <li key={index} title='Generated Phrase'>{index}: Generated Phrase</li>
+              <li key={index} title="Generated Phrase">
+                {index}: Generated Phrase
+              </li>
             ))}
           </ul>
         </div>
