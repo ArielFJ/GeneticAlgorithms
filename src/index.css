@@ -1,0 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@400;600;700;900&family=Outfit:wght@400;700;900&family=PT+Mono&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+root,
+* {
+  font-family: "Chivo Mono", monospace;
+}
