@@ -1,10 +1,12 @@
 import Alert from "./components/atoms/Alert";
 import Button from "./components/atoms/Button";
 import SearchBar from "./components/SearchBar";
+import { useGenAlgo } from "./hooks/useGenAlgo";
 import { useSettingsStore } from "./store";
 
 function App() {
-  const { expectedPhrase, bestPhrase, generation, avgFitness, totalPopulation, mutationRate } = useSettingsStore((state) => state);
+  const { expectedPhrase, bestPhrase, avgFitness, totalPopulation, mutationRate } = useSettingsStore((state) => state);
+  const { currentPopulation, generation } = useGenAlgo();
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -39,9 +41,9 @@ function App() {
         <div className="overflow-auto pb-20">
           <p className="font-semibold">Population set:</p>
           <ul>
-            {Array.from({ length: totalPopulation }).map((_, index) => (
-              <li key={index} title={expectedPhrase}>
-                {index}: {expectedPhrase}
+            {currentPopulation.map(({ cromosome, fitness }, index) => (
+              <li key={index} title={cromosome.join('')}>
+                {(index).toString().padStart(3, '0')}: {cromosome.join('')} - {fitness * 100}%
               </li>
             ))}
           </ul>
