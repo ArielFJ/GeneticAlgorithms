@@ -2,15 +2,16 @@ import { useCallback, useMemo } from "react";
 import { useSettingsStore } from "../store";
 import { GeneticAlgorithm } from "./../services/GA";
 
-const ga = new GeneticAlgorithm();
-
 interface Props {
   totalPopulation: number;
   expectedPhrase: string;
 }
 
+const ga = new GeneticAlgorithm();
+
 export function useGenAlgo() {
-  const { totalPopulation } = useSettingsStore((state) => state);
+  // const { totalPopulation } = useSettingsStore((state) => (state));
+
   const [currentPopulation, generation] = useMemo(() => {
     const pop = [];
     for (let i = 0; i < ga.maxPopulation; i++) {
@@ -24,7 +25,8 @@ export function useGenAlgo() {
 
   const nextGeneration = useCallback(
     (expectedPhrase: string) => {
-      ga.generateInitialPopulation(expectedPhrase, totalPopulation);
+      ga.stop();
+      // ga.run(expectedPhrase, totalPopulation);
     },
     [ga]
   );

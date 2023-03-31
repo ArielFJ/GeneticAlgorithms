@@ -15,12 +15,8 @@ function SearchBar() {
     console.log('in submit')
     event.preventDefault();
     setExpectedPhrase(phrase);
-    nextGeneration(phrase);
+    // nextGeneration(phrase);
   };
-
-  useEffect(() => {
-    console.log('currentPopulation', currentPopulation);
-  }, [currentPopulation]);
 
   return (
     <div className="flex justify-center w-full">

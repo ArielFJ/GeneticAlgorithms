@@ -13,3 +13,7 @@ export const generateAsciiCharacters = (): string[] => {
   }
   return characters;
 };
+
+export const random = (limit: number) => {
+  return Math.floor(Math.random() * limit);
+}
