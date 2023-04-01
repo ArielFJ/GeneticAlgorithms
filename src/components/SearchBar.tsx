@@ -8,14 +8,13 @@ function SearchBar() {
   const { expectedPhrase, totalPopulation, setExpectedPhrase } = useSettingsStore(
     (state) => state
   );
-  const { currentPopulation, nextGeneration } = useGenAlgo();
+  const { nextGeneration } = useGenAlgo();
   const [phrase, setPhrase] = React.useState<string>('');
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    console.log('in submit')
     event.preventDefault();
     setExpectedPhrase(phrase);
-    // nextGeneration(phrase);
+    nextGeneration(phrase);
   };
 
   return (

@@ -1,7 +1,11 @@
+let characters: string[] = [];
+
 export const generateAsciiCharacters = (): string[] => {
+  if (characters.length > 0) return characters;
+
   // Space
-  const characters: string[] = [' '];
-  
+  characters = [" "];
+
   // A-Z
   for (let i = 65; i <= 90; i++) {
     characters.push(String.fromCharCode(i));
@@ -16,4 +20,4 @@ export const generateAsciiCharacters = (): string[] => {
 
 export const random = (limit: number) => {
   return Math.floor(Math.random() * limit);
-}
+};

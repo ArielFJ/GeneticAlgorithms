@@ -6,7 +6,8 @@ import { useSettingsStore } from "./store";
 
 function App() {
   const { expectedPhrase, bestPhrase, avgFitness, totalPopulation, mutationRate } = useSettingsStore((state) => state);
-  const { currentPopulation, generation } = useGenAlgo();
+  const { currentPopulation, generation, stop } = useGenAlgo();
+  console.log("🚀 ~ file: App.tsx:10 ~ App ~ currentPopulation:", currentPopulation);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -30,7 +31,7 @@ function App() {
 
           <div className="mt-10 flex justify-evenly">
             <Button>Start</Button>
-            <Button>Stop</Button>
+            <Button onClick={stop}>Stop</Button>
           </div>
 
           <div className="mt-10 flex justify-center">

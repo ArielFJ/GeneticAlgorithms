@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSettingsStore } from "../store";
 import { GeneticAlgorithm } from "./../services/GA";
 
@@ -7,29 +7,39 @@ interface Props {
   expectedPhrase: string;
 }
 
-const ga = new GeneticAlgorithm();
+let ga: GeneticAlgorithm = new GeneticAlgorithm();
 
 export function useGenAlgo() {
-  // const { totalPopulation } = useSettingsStore((state) => (state));
+  const [gaInstance] = useState(ga);
+  const { totalPopulation } = useSettingsStore((state) => state);
 
-  const [currentPopulation, generation] = useMemo(() => {
-    const pop = [];
-    for (let i = 0; i < ga.maxPopulation; i++) {
-      pop.push({
-        cromosome: ga.population[i],
-        fitness: ga.fitness[i],
-      });
-    }
-    return [pop, ga.generation];
-  }, [ga.population, ga.fitness, ga.generation]);
+  const currentPopulation = useMemo(
+    () => gaInstance.currentPopulation,
+    [gaInstance.generation]
+  );
+  // const [currentPopulation, setCurrentPopulation] = useState<any[]>([]);
+
+  useEffect(() => {
+    console.log(gaInstance.currentPopulation);
+
+    // function handleChange() {
+    //   setCurrentPopulation(ga.currentPopulation);
+    // }
+
+    // ga.addListener()
+  }, [gaInstance.generation]);
 
   const nextGeneration = useCallback(
     (expectedPhrase: string) => {
       ga.stop();
-      // ga.run(expectedPhrase, totalPopulation);
+      ga.run(expectedPhrase, totalPopulation);
     },
     [ga]
   );
 
-  return { currentPopulation, generation, nextGeneration };
+  const stop = useCallback(() => {
+    ga.stop();
+  }, [ga]);
+
+  return { currentPopulation, generation: 0, nextGeneration, stop };
 }

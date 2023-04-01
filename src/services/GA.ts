@@ -10,7 +10,9 @@ export class GeneticAlgorithm {
   stopped: boolean;
   population: string[][] = [];
   fitness: number[];
+  matingPool: number[];
   possibleCharacters: string[] = [];
+  // onPopulationChange: (pop: string[][]) => void;
 
   constructor() {
     this.expectedPhrase = "";
@@ -20,16 +22,34 @@ export class GeneticAlgorithm {
     this.mutationRate = 0.01;
     this.finished = false;
     this.stopped = true;
-    this.population = [];
+    this.setPopulation([]);
+    this.matingPool = [];
     this.fitness = [];
     this.possibleCharacters = generateAsciiCharacters();
+    // this.onPopulationChange = onPopChange;
+  }
+
+  get currentPopulation() {
+    const pop = [];
+    for (let i = 0; i < this.maxPopulation; i++) {
+      pop.push({
+        cromosome: this.population[i],
+        fitness: this.fitness[i],
+      });
+    }
+    return pop;
+  }
+
+  setPopulation(pop: string[][]) {
+    this.population =pop;
+    // this.onPopulationChange(this.population);
   }
 
   generateInitialPopulation() {
     this.generation = 1;
 
     const length = this.expectedPhrase.length;
-    this.population = [];
+    this.setPopulation([]);
 
     for (let i = 0; i < this.maxPopulation; i++) {
       const cromosome = [];
@@ -40,39 +60,41 @@ export class GeneticAlgorithm {
       this.shuffleArray(cromosome);
       this.population.push(cromosome);
     }
-
-    this.calculateFitness();
-    this.reproduce();
   }
 
   stop() {
     this.stopped = true;
-    console.log('stopped');
   }
 
-  run(expectedPhrase: string, maxPopulation: number) {
+  async run(expectedPhrase: string, maxPopulation: number) {
     this.expectedPhrase = expectedPhrase;
     this.maxPopulation = maxPopulation;
 
     this.stopped = false;
     this.generation = 1;
     const length = this.expectedPhrase.length;
-    this.population = [];
+    this.setPopulation([]);
     const maxIterations = 100;
     let counter = 0;
 
-    while (!this.stopped && counter < maxIterations) {
-      for (let i = 0; i < this.maxPopulation; i++) {
-        const cromosome = [];
-        for (let j = 0; j < length; j++) {
-          const gene = this.getRandomGene();
-          cromosome.push(gene);
-        }
-        this.shuffleArray(cromosome);
-        this.population.push(cromosome);
-      }
+    this.generateInitialPopulation();
 
+    this.calculateFitness();
+    this.naturalSelection();
+
+    while (!this.stopped && counter < maxIterations) {
+      // for (let i = 0; i < this.maxPopulation; i++) {
+      //   const cromosome = [];
+      //   for (let j = 0; j < length; j++) {
+      //     const gene = this.getRandomGene();
+      //     cromosome.push(gene);
+      //   }
+      //   this.shuffleArray(cromosome);
+      //   this.population.push(cromosome);
+      // }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       this.calculateFitness();
+      this.naturalSelection();
       this.reproduce();
       counter++;
     }
@@ -110,13 +132,13 @@ export class GeneticAlgorithm {
       if (fit === phraseLength) {
         this.winnerIndex = i;
       }
-      this.fitness[i] = fit / this.maxPopulation + 0.0001;
+      this.fitness[i] = fit / this.maxPopulation;
     }
   }
 
-  reproduce() {
+  // Build mating pool
+  naturalSelection() {
     const fitnessSum = this.fitness.reduce((total, curr) => total + curr, 0.0);
-    // const probabilitiesLength = Math.floor(1 / fitnessSum);
     const normalizedFitness = [];
     for (let i = 0; i < this.fitness.length; i++) {
       const fit = this.fitness[i];
@@ -135,31 +157,72 @@ export class GeneticAlgorithm {
       }
     }
 
-    const indexA = random(options.length - 1);
-    const indexB = random(options.length - 1);
+    this.matingPool = options;
+    // const indexA = random(options.length - 1);
+    // let indexB = random(options.length - 1);
 
-    const cromosomeA = this.population[indexA];
-    const cromosomeB = this.population[indexB];
+    // const cromosomeA = this.population[options[indexA]];
+    // let cromosomeB = this.population[options[indexB]];
+    // while (cromosomeA === cromosomeB) {
+    //   indexB = random(options.length - 1);
+    //   cromosomeB = this.population[options[indexB]];
+    // }
 
+    // return {
+    //   cromosomeA,
+    //   cromosomeB,
+    // };
+  }
+
+  reproduce() {
     const newPopulation = [];
-    for (let i = 0; i < this.maxPopulation; i++) {
-      const partition = random(this.expectedPhrase.length - 1);
-      const geneSetA = cromosomeA.slice(0, partition);
-      const geneSetB = cromosomeB.slice(partition);
 
-      const newGene = [...geneSetA, ...geneSetB];
+    for (let i = 0; i < this.maxPopulation; i++) {
+      const rand1 = random(this.matingPool.length - 1);
+      const rand2 = random(this.matingPool.length - 1);
+
+      const partnerA = this.matingPool[rand1];
+      const partnerB = this.matingPool[rand2];
+
+      const cromosomeA = this.population[partnerA];
+      const cromosomeB = this.population[partnerB];
+      // console.log(
+      //   "🚀 ~ file: GA.ts:167 ~ GeneticAlgorithm ~ reproduce ~ partnerA:",
+      //   {
+      //     len: this.matingPool.length,
+      //     rand1,
+      //     rand2,
+      //     partnerA,
+      //     partnerB,
+      //     cromosomeA,
+      //     cromosomeB,
+      //   }
+      // );
+
+      const newGene = this.crossover(cromosomeA, cromosomeB);
       this.mutate(newGene);
       newPopulation.push(newGene);
     }
 
-    this.population = newPopulation;
+    this.setPopulation(newPopulation);
+    this.generation++;
+  }
+
+  crossover(cromosomeA: string[], cromosomeB: string[]) {
+    const partition = random(this.expectedPhrase.length - 1);
+    const geneSetA = cromosomeA.slice(0, partition);
+    const geneSetB = cromosomeB.slice(partition);
+    const newGene = [...geneSetA, ...geneSetB];
+
+    return newGene;
   }
 
   mutate(cromosome: string[]) {
-    const rand = Math.random();
-    if (rand < this.mutationRate) {
-      const randIndex = random(this.expectedPhrase.length - 1);
-      cromosome[randIndex] = this.getRandomGene();
+    for (let i = 0; i < cromosome.length; i++) {
+      const rand = Math.random();
+      if (rand < this.mutationRate) {
+        cromosome[i] = this.getRandomGene();
+      }
     }
   }
 }
