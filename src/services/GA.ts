@@ -1,32 +1,38 @@
-import { generateAsciiCharacters, random } from "../utils/helpers";
+import { GAParameters } from "../types";
+import {
+  generateAsciiCharacters,
+  randomInt,
+  shuffleArray,
+} from "../utils/helpers";
 
 export class GeneticAlgorithm {
   expectedPhrase: string;
+  bestPhrase: string;
   maxPopulation: number;
-  generation: number;
-  winnerIndex: number;
+  generations: number;
+  bestIndex: number;
   mutationRate: number;
   finished: boolean;
   stopped: boolean;
   population: string[][] = [];
   fitness: number[];
-  matingPool: number[];
+  avgFitness: number;
+  cumulativeProportions: number[];
   possibleCharacters: string[] = [];
-  // onPopulationChange: (pop: string[][]) => void;
 
   constructor() {
     this.expectedPhrase = "";
+    this.bestPhrase = "";
     this.maxPopulation = 0;
-    this.generation = 0;
-    this.winnerIndex = 0;
+    this.generations = 0;
+    this.bestIndex = -1;
     this.mutationRate = 0.01;
     this.finished = false;
     this.stopped = true;
-    this.setPopulation([]);
-    this.matingPool = [];
+    this.cumulativeProportions = [];
     this.fitness = [];
+    this.avgFitness = 0;
     this.possibleCharacters = generateAsciiCharacters();
-    // this.onPopulationChange = onPopChange;
   }
 
   get currentPopulation() {
@@ -40,16 +46,11 @@ export class GeneticAlgorithm {
     return pop;
   }
 
-  setPopulation(pop: string[][]) {
-    this.population =pop;
-    // this.onPopulationChange(this.population);
-  }
-
   generateInitialPopulation() {
-    this.generation = 1;
+    this.generations = 1;
 
     const length = this.expectedPhrase.length;
-    this.setPopulation([]);
+    this.population = [];
 
     for (let i = 0; i < this.maxPopulation; i++) {
       const cromosome = [];
@@ -57,7 +58,7 @@ export class GeneticAlgorithm {
         const gene = this.getRandomGene();
         cromosome.push(gene);
       }
-      this.shuffleArray(cromosome);
+      shuffleArray(cromosome);
       this.population.push(cromosome);
     }
   }
@@ -66,46 +67,45 @@ export class GeneticAlgorithm {
     this.stopped = true;
   }
 
-  async run(expectedPhrase: string, maxPopulation: number) {
+  resume() {
+    this.stopped = false;
+  }
+
+  async run(
+    expectedPhrase: string,
+    maxPopulation: number,
+    onNewGen: (p: GAParameters) => void,
+    waitTime: number = 1000
+  ) {
     this.expectedPhrase = expectedPhrase;
     this.maxPopulation = maxPopulation;
 
+    this.finished = false;
     this.stopped = false;
-    this.generation = 1;
-    const length = this.expectedPhrase.length;
-    this.setPopulation([]);
-    const maxIterations = 100;
+    this.generations = 1;
+    this.population = [];
+    this.bestIndex = -1;
+    const maxIterations = 1000000;
     let counter = 0;
 
     this.generateInitialPopulation();
 
-    this.calculateFitness();
-    this.naturalSelection();
-
-    while (!this.stopped && counter < maxIterations) {
-      // for (let i = 0; i < this.maxPopulation; i++) {
-      //   const cromosome = [];
-      //   for (let j = 0; j < length; j++) {
-      //     const gene = this.getRandomGene();
-      //     cromosome.push(gene);
-      //   }
-      //   this.shuffleArray(cromosome);
-      //   this.population.push(cromosome);
-      // }
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    while (!this.stopped && counter < maxIterations && !this.finished) {
       this.calculateFitness();
-      this.naturalSelection();
-      this.reproduce();
-      counter++;
-    }
-  }
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
 
-  shuffleArray(array: string[]) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+      this.reproduce();
+
+      this.evaluate();
+      onNewGen({
+        population: this.population,
+        fitness: this.fitness,
+        bestPhrase: this.bestPhrase,
+        generations: this.generations,
+        bestIndex: this.bestIndex,
+        avgFitness: this.avgFitness,
+      });
+      counter++;
     }
   }
 
@@ -129,91 +129,63 @@ export class GeneticAlgorithm {
           fit++;
         }
       }
-      if (fit === phraseLength) {
-        this.winnerIndex = i;
-      }
-      this.fitness[i] = fit / this.maxPopulation;
+
+      this.fitness[i] = fit / phraseLength + 0.0000001;
     }
-  }
-
-  // Build mating pool
-  naturalSelection() {
-    const fitnessSum = this.fitness.reduce((total, curr) => total + curr, 0.0);
-    const normalizedFitness = [];
-    for (let i = 0; i < this.fitness.length; i++) {
-      const fit = this.fitness[i];
-      if (fit > 0.0) {
-        normalizedFitness.push({
-          index: i,
-          value: Math.floor((fit / fitnessSum) * 100),
-        });
-      }
-    }
-
-    const options = [];
-    for (let fitness of normalizedFitness) {
-      for (let i = 0; i < fitness.value; i++) {
-        options.push(fitness.index);
-      }
-    }
-
-    this.matingPool = options;
-    // const indexA = random(options.length - 1);
-    // let indexB = random(options.length - 1);
-
-    // const cromosomeA = this.population[options[indexA]];
-    // let cromosomeB = this.population[options[indexB]];
-    // while (cromosomeA === cromosomeB) {
-    //   indexB = random(options.length - 1);
-    //   cromosomeB = this.population[options[indexB]];
-    // }
-
-    // return {
-    //   cromosomeA,
-    //   cromosomeB,
-    // };
   }
 
   reproduce() {
     const newPopulation = [];
+    this.calculateProportions();
 
     for (let i = 0; i < this.maxPopulation; i++) {
-      const rand1 = random(this.matingPool.length - 1);
-      const rand2 = random(this.matingPool.length - 1);
-
-      const partnerA = this.matingPool[rand1];
-      const partnerB = this.matingPool[rand2];
-
-      const cromosomeA = this.population[partnerA];
-      const cromosomeB = this.population[partnerB];
-      // console.log(
-      //   "🚀 ~ file: GA.ts:167 ~ GeneticAlgorithm ~ reproduce ~ partnerA:",
-      //   {
-      //     len: this.matingPool.length,
-      //     rand1,
-      //     rand2,
-      //     partnerA,
-      //     partnerB,
-      //     cromosomeA,
-      //     cromosomeB,
-      //   }
-      // );
+      // Get different Parents
+      const cromosomeA = this.naturalSelection();
+      let cromosomeB = this.naturalSelection();
+      while (cromosomeA === cromosomeB) {
+        cromosomeB = this.naturalSelection();
+      }
 
       const newGene = this.crossover(cromosomeA, cromosomeB);
       this.mutate(newGene);
       newPopulation.push(newGene);
     }
 
-    this.setPopulation(newPopulation);
-    this.generation++;
+    this.population = newPopulation;
+    this.generations++;
   }
 
-  crossover(cromosomeA: string[], cromosomeB: string[]) {
-    const partition = random(this.expectedPhrase.length - 1);
-    const geneSetA = cromosomeA.slice(0, partition);
-    const geneSetB = cromosomeB.slice(partition);
-    const newGene = [...geneSetA, ...geneSetB];
+  calculateProportions() {
+    const fitnessSum = this.fitness.reduce((total, curr) => total + curr, 0.0);
+    this.avgFitness = fitnessSum / this.fitness.length;
+    const proportions = this.fitness.map((fit) => fit / fitnessSum);
 
+    // Create list to hold cumulative values
+    this.cumulativeProportions = [];
+    let cumulativeTotal = 0.0;
+
+    // Populated cumulated values
+    // [0.25, 0.60, 1]
+    for (let p of proportions) {
+      cumulativeTotal += p;
+      this.cumulativeProportions.push(cumulativeTotal);
+    }
+  }
+
+  crossover(father: string[], mother: string[]) {
+    const partition = randomInt(this.expectedPhrase.length - 1);
+    let dominant = father;
+    let nonDominant = mother;
+
+    const isMotherDominant = Math.random() > 0.5;
+    if (isMotherDominant) {
+      dominant = mother;
+      nonDominant = father;
+    }
+
+    const geneSetA = dominant.slice(0, partition);
+    const geneSetB = nonDominant.slice(partition);
+    const newGene = [...geneSetA, ...geneSetB];
     return newGene;
   }
 
@@ -222,6 +194,46 @@ export class GeneticAlgorithm {
       const rand = Math.random();
       if (rand < this.mutationRate) {
         cromosome[i] = this.getRandomGene();
+      }
+    }
+  }
+
+  naturalSelection() {
+    // Generate random number between 0 - 1
+    // 0.4
+    const selectedValue = Math.random();
+
+    // Loop through cumulative values, until we find value larger than cumulated value
+    // 0.25 < 0.4 - No
+    // 0.55 > 0.4 - YES!
+    for (let i = 0; i < this.cumulativeProportions.length; i++) {
+      const value = this.cumulativeProportions[i];
+      if (value >= selectedValue) {
+        // Return the individual at this index
+        return this.population[i];
+      }
+    }
+
+    // Either generated a number outside the range, or values didn't sum to 1
+    throw new Error("Bad proportions");
+  }
+
+  evaluate() {
+    let bestFitness = 0;
+    for (let i = 0; i < this.maxPopulation; i++) {
+      const cromosome = this.population[i].join("");
+
+      if (this.fitness[i] > bestFitness) {
+        bestFitness = this.fitness[i];
+        this.bestPhrase = cromosome;
+      }
+
+      if (cromosome === this.expectedPhrase) {
+        this.finished = true;
+        this.bestIndex = i;
+        this.bestPhrase = cromosome;
+        this.fitness[i] = 1;
+        break;
       }
     }
   }

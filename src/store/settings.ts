@@ -18,7 +18,7 @@ const useSettingsStore = create<SettingsStore>((set, get) => ({
   bestPhrase: "",
   generation: 0,
   avgFitness: 0.0,
-  totalPopulation: 100,
+  totalPopulation: 10,
   mutationRate: 0.01,
   setExpectedPhrase: (phrase: string) => set({ expectedPhrase: phrase }),
   setBestPhrase: (phrase: string) => set({ bestPhrase: phrase }),

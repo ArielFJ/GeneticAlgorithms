@@ -1,7 +1,7 @@
 let characters: string[] = [];
 
 export const generateAsciiCharacters = (): string[] => {
-  if (characters.length > 0) return characters;
+  if (characters.length) return characters;
 
   // Space
   characters = [" "];
@@ -18,6 +18,21 @@ export const generateAsciiCharacters = (): string[] => {
   return characters;
 };
 
-export const random = (limit: number) => {
+export const checkForValidCharacters = (phrase: string) => {
+  // Regex to check Uppercase, Lowercase and Spaces
+  const regex = /^[A-Za-z ]+$/;
+  return regex.test(phrase);
+};
+
+export const randomInt = (limit: number) => {
   return Math.floor(Math.random() * limit);
+};
+
+export const shuffleArray = (array: string[]) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
 };
