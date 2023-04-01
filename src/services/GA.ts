@@ -27,23 +27,13 @@ export class GeneticAlgorithm {
     this.generations = 0;
     this.bestIndex = -1;
     this.mutationRate = 0.01;
+
     this.finished = false;
     this.stopped = true;
     this.cumulativeProportions = [];
     this.fitness = [];
     this.avgFitness = 0;
     this.possibleCharacters = generateAsciiCharacters();
-  }
-
-  get currentPopulation() {
-    const pop = [];
-    for (let i = 0; i < this.maxPopulation; i++) {
-      pop.push({
-        cromosome: this.population[i],
-        fitness: this.fitness[i],
-      });
-    }
-    return pop;
   }
 
   generateInitialPopulation() {
@@ -71,24 +61,34 @@ export class GeneticAlgorithm {
     this.stopped = false;
   }
 
-  async run(
-    expectedPhrase: string,
-    maxPopulation: number,
-    onNewGen: (p: GAParameters) => void,
-    waitTime: number = 1000
-  ) {
+  async run({
+    expectedPhrase,
+    maxPopulation,
+    mutationRate,
+    onNewGen = () => {},
+    waitTime = 1000,
+  }: {
+    expectedPhrase: string;
+    maxPopulation: number;
+    mutationRate: number;
+    onNewGen?: (p: GAParameters) => void;
+    waitTime?: number;
+  }) {
     this.expectedPhrase = expectedPhrase;
     this.maxPopulation = maxPopulation;
+    this.mutationRate = mutationRate;
 
     this.finished = false;
     this.stopped = false;
     this.generations = 1;
     this.population = [];
+    this.cumulativeProportions = [];
     this.bestIndex = -1;
     const maxIterations = 1000000;
     let counter = 0;
 
     this.generateInitialPopulation();
+    // console.log(this.population);
 
     while (!this.stopped && counter < maxIterations && !this.finished) {
       this.calculateFitness();
@@ -119,6 +119,7 @@ export class GeneticAlgorithm {
   calculateFitness() {
     const popLength = this.population.length;
     const phraseLength = this.expectedPhrase.length;
+    const newFitness = []
 
     for (let i = 0; i < popLength; i++) {
       const cromosome = this.population[i];
@@ -130,8 +131,10 @@ export class GeneticAlgorithm {
         }
       }
 
-      this.fitness[i] = fit / phraseLength + 0.0000001;
+      newFitness[i] = fit / phraseLength + 0.0000001;
     }
+
+    this.fitness = newFitness;
   }
 
   reproduce() {
@@ -140,11 +143,7 @@ export class GeneticAlgorithm {
 
     for (let i = 0; i < this.maxPopulation; i++) {
       // Get different Parents
-      const cromosomeA = this.naturalSelection();
-      let cromosomeB = this.naturalSelection();
-      while (cromosomeA === cromosomeB) {
-        cromosomeB = this.naturalSelection();
-      }
+      const [cromosomeA, cromosomeB] = this.getParents();
 
       const newGene = this.crossover(cromosomeA, cromosomeB);
       this.mutate(newGene);
@@ -196,6 +195,20 @@ export class GeneticAlgorithm {
         cromosome[i] = this.getRandomGene();
       }
     }
+  }
+
+  getParents() {
+    let cromosomeA = this.naturalSelection();
+    while (!cromosomeA) {
+      cromosomeA = this.naturalSelection();
+    }
+
+    let cromosomeB = this.naturalSelection();
+    while (cromosomeA === cromosomeB) {
+      cromosomeB = this.naturalSelection();
+    }
+
+    return [cromosomeA, cromosomeB];
   }
 
   naturalSelection() {

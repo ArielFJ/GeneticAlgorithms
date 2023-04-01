@@ -69,12 +69,28 @@ const GAProvider = ({ children }: { children: React.ReactNode }) => {
 
   const run = async (phrase: string) => {
     setExpectedPhrase(phrase);
+    setWinnerIndex(-1);
+    setFinished(false);
     const framesPerSecond = 1000 / 60;
-    await ga.run(phrase, maxPopulation, onNewGeneration, framesPerSecond);
+    setStopped(false);
+    await ga.run({
+      expectedPhrase: phrase,
+      maxPopulation,
+      mutationRate,
+      onNewGen: onNewGeneration,
+      waitTime: framesPerSecond,
+    });
   };
+
+  useEffect(() => {
+    if (bestIndex === -1) return;
+    setWinnerIndex(bestIndex);
+    setFinished(true);
+  }, [bestIndex])
 
   const stop = () => {
     ga.stop();
+    setStopped(true);
   };
 
   const resume = () => {
@@ -111,7 +127,7 @@ const GAProvider = ({ children }: { children: React.ReactNode }) => {
         setPossibleCharacters,
         run,
         stop,
-        resume
+        resume,
       }}
     >
       {children}

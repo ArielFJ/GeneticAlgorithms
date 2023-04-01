@@ -1,12 +1,6 @@
 import React from "react";
 
-interface Props {
-  type?: string;
-  placeholder?: string;
-  value?: string;
-  className?: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
+interface Props extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 function Input({
   type = "text",
@@ -14,6 +8,7 @@ function Input({
   className,
   value,
   onChange,
+  ...rest
 }: Props) {
   return (
     <input
@@ -22,6 +17,7 @@ function Input({
       type={type}
       placeholder={placeholder}
       className={`border-b-2 pl-2 outline-none ${className}`}
+      {...rest}
     />
   );
 }

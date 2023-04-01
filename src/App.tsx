@@ -4,7 +4,7 @@ import GeneticAlgorithm from "./views/GeneticAlgorithm";
 function App() {
   return (
     <GAProvider>
-      <div className="flex flex-col h-screen overflow-hidden">
+      <div className="flex flex-col h-screen">
         <GeneticAlgorithm />
       </div>
     </GAProvider>
