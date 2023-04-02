@@ -88,7 +88,6 @@ export class GeneticAlgorithm {
     let counter = 0;
 
     this.generateInitialPopulation();
-    // console.log(this.population);
 
     while (!this.stopped && counter < maxIterations && !this.finished) {
       this.calculateFitness();

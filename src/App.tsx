@@ -1,12 +1,11 @@
+import { RouterProvider } from "react-router-dom";
 import GAProvider from "./context/GAContext";
-import GeneticAlgorithm from "./views/GeneticAlgorithm";
+import router from "./routes";
 
 function App() {
   return (
     <GAProvider>
-      <div className="flex flex-col h-screen">
-        <GeneticAlgorithm />
-      </div>
+      <RouterProvider router={router} />
     </GAProvider>
   );
 }
