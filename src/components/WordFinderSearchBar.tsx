@@ -1,11 +1,11 @@
 import React from "react";
 import Button from "./atoms/Button";
 import Input from "./atoms/Input";
-import { useGAContext } from "../context/GAContext";
+import { useWordFinderGAContext } from "../context/WordFinderGAContext";
 import { checkForValidCharacters } from "../utils/helpers";
 
-function SearchBar() {
-  const { setExpectedPhrase, run } = useGAContext();
+function WordFinderSearchBar() {
+  const { setExpectedPhrase, run } = useWordFinderGAContext();
   const [phrase, setPhrase] = React.useState<string>("");
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -19,8 +19,8 @@ function SearchBar() {
   };
 
   return (
-    <div className="flex justify-center w-full bg-white mt-2">
-      <form className="flex w-2/3 bg-white" onSubmit={onSubmit}>
+    <div className="flex justify-center w-full">
+      <form className="flex w-2/3" onSubmit={onSubmit}>
         <Input
           type="text"
           placeholder="Enter a word (UPPERCASE, lowercase and spaces)..."
@@ -36,4 +36,4 @@ function SearchBar() {
   );
 }
 
-export default SearchBar;
+export default WordFinderSearchBar;

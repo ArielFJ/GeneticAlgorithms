@@ -7,15 +7,19 @@ import {
 
 interface Props {
   bestIndex: number;
-  population: string[][];
+  population: string[][] | number[][];
   fitness: number[];
   maxPopulation: number;
+  geneSeparator?: string;
+  formatFitness?: (fitness: number) => string;
 }
 
 function PopulationSet({
   bestIndex,
   population,
   fitness,
+  geneSeparator = '',
+  formatFitness = (fitness) => `${(fitness * 100).toFixed(2)}%`,
 }: Props) {
   const listRef = useRef() as MutableRefObject<HTMLUListElement>;
 
@@ -42,11 +46,11 @@ function PopulationSet({
       {currentPopulation.map(({ cromosome, fitness }, index) => (
         <li
           key={index}
-          title={cromosome.join("")}
+          title={cromosome.join(geneSeparator)}
           className={index === bestIndex ? "bg-green-500 text-white" : ""}
         >
-          {index.toString().padStart(3, "0")}: {cromosome.join("")} -{" "}
-          {(fitness * 100).toFixed(2)}%
+          {index.toString().padStart(3, "0")}: {cromosome.join(geneSeparator)} -{" "}
+          {formatFitness(fitness)}
         </li>
       ))}
     </ul>

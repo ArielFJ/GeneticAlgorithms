@@ -1,7 +1,7 @@
-export interface GAParameters {
+export interface GAParameters<T> {
   fitness: number[];
-  population: string[][];
-  bestPhrase: string;
+  population: T[];
+  bestSolution: T;
   generations: number;
   bestIndex: number;
   avgFitness: number;

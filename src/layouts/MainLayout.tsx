@@ -1,8 +1,8 @@
-import SearchBar from "../components/SearchBar";
+import WordFinderSearchBar from "../components/WordFinderSearchBar";
 import { ROUTES } from "../routes/routes";
 import { Link } from "react-router-dom";
 
-function MainLayout({ children }: { children?: JSX.Element | JSX.Element[] }) {
+function MainLayout({ children, extraHeader }: { children?: JSX.Element | JSX.Element[], extraHeader?: JSX.Element }) {
   return (
     <div className="flex flex-col h-screen">
         <div className="sticky top-0 bg-white p-2 z-10">
@@ -20,7 +20,8 @@ function MainLayout({ children }: { children?: JSX.Element | JSX.Element[] }) {
               );
             })}
           </nav>
-          <SearchBar />
+          {/* <SearchBar /> */}
+          {extraHeader}
         </div>
         <div className="overflow-hidden">{children}</div>
     </div>

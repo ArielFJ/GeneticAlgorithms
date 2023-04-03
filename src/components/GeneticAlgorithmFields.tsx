@@ -1,8 +1,8 @@
 import React from "react";
-import { useGAContext } from "../context/GAContext";
+// import { useWordFinderGAContext } from "../context/WordFinderGAContext";
 import Slider from "./atoms/Slider";
 
-function GeneticAlgorithmFields() {
+function GeneticAlgorithmFields({ contextFunc }: { contextFunc: any} ) {
   const {
     mutationRate,
     maxPopulation,
@@ -10,7 +10,7 @@ function GeneticAlgorithmFields() {
     averageFitness,
     setMaxPopulation,
     setMutationRate,
-  } = useGAContext();
+  } = contextFunc();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;

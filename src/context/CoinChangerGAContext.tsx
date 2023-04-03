@@ -1,80 +1,66 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { generateAsciiCharacters } from "../utils/helpers";
-import { GeneticAlgorithm } from "../services/GA";
+import { WordFinderGeneticAlgorithm } from "../services/WordFinderGA";
 import { GAParameters } from "../types";
+import { CoinChangerGeneticAlgorithm } from "../services/CoinChangerGA";
 
 type GAStore = {
-  expectedPhrase: string;
-  bestPhrase: string;
+  expectedCoinSum: number;
+  bestSolution: number[];
   maxPopulation: number;
   generations: number;
   winnerIndex: number;
   mutationRate: number;
-  timeoutId: number;
   bestIndex: number;
   finished: boolean;
   stopped: boolean;
-  population: string[][];
+  population: number[][];
   fitness: number[];
   averageFitness: number;
-  possibleCharacters: string[];
-  setExpectedPhrase: (phrase: string) => void;
-  setBestPhrase: (phrase: string) => void;
+  setExpectedCoinSum: (coinSum: number) => void;
   setMaxPopulation: (pop: number) => void;
-  setGenerations: (value: number) => void;
-  setWinnerIndex: (value: number) => void;
   setMutationRate: (value: number) => void;
-  setTimeoutId: (value: number) => void;
-  setFinished: (value: boolean) => void;
-  setStopped: (value: boolean) => void;
-  setPopulation: (value: string[][]) => void;
-  setPossibleCharacters: (value: string[]) => void;
-  run: (phrase: string) => Promise<void>;
+  run: (coinSum: number) => Promise<void>;
   stop: () => void;
   resume: () => void;
 };
 
-export const GAContext = createContext<GAStore>({} as GAStore);
+export const CoinChangerGAContext = createContext<GAStore>({} as GAStore);
 
-export const useGAContext = () => useContext(GAContext);
+export const useCoinChangerGAContext = () => useContext(CoinChangerGAContext);
 
-const ga: GeneticAlgorithm = new GeneticAlgorithm();
+const ga: CoinChangerGeneticAlgorithm = new CoinChangerGeneticAlgorithm();
 
-const GAProvider = ({ children }: { children: React.ReactNode }) => {
-  const [expectedPhrase, setExpectedPhrase] = useState<string>("");
-  const [bestPhrase, setBestPhrase] = useState<string>("");
+const CoinChangerGAProvider = ({ children }: { children: React.ReactNode }) => {
+  const [expectedCoinSum, setExpectedCoinSum] = useState<number>(0);
+  const [bestSolution, setBestSolution] = useState<number[]>([]);
   const [maxPopulation, setMaxPopulation] = useState<number>(200);
   const [generations, setGenerations] = useState<number>(0);
   const [winnerIndex, setWinnerIndex] = useState<number>(0);
   const [mutationRate, setMutationRate] = useState<number>(0.01);
-  const [timeoutId, setTimeoutId] = useState<number>(0);
   const [bestIndex, setBestIndex] = useState<number>(-1);
   const [finished, setFinished] = useState<boolean>(false);
   const [stopped, setStopped] = useState<boolean>(false);
-  const [population, setPopulation] = useState<string[][]>([]);
+  const [population, setPopulation] = useState<number[][]>([]);
   const [fitness, setFitness] = useState<number[]>([]);
   const [averageFitness, setAverageFitness] = useState<number>(0);
-  const [possibleCharacters, setPossibleCharacters] = useState<string[]>(
-    generateAsciiCharacters()
-  );
 
-  const onNewGeneration = (params: GAParameters) => {
+  const onNewGeneration = (params: GAParameters<number[]>) => {
     setPopulation(params.population);
     setFitness(params.fitness);
-    setBestPhrase(params.bestPhrase);
+    setBestSolution(params.bestSolution);
     setGenerations(params.generations);
     setBestIndex(params.bestIndex);
     setAverageFitness(params.avgFitness);
   };
 
-  const run = async (phrase: string) => {
-    setExpectedPhrase(phrase);
+  const run = async (coinSum: number) => {
+    setExpectedCoinSum(coinSum);
     setWinnerIndex(-1);
     setFinished(false);
     const framesPerSecond = 1000 / 60;
     setStopped(false);
     await ga.run({
-      expectedPhrase: phrase,
+      expectedCoinSum: coinSum,
       maxPopulation,
       mutationRate,
       onNewGen: onNewGeneration,
@@ -98,41 +84,31 @@ const GAProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <GAContext.Provider
+    <CoinChangerGAContext.Provider
       value={{
-        expectedPhrase,
-        setExpectedPhrase,
-        bestPhrase,
-        setBestPhrase,
+        expectedCoinSum,
+        setExpectedCoinSum: setExpectedCoinSum,
+        bestSolution,
         maxPopulation,
         setMaxPopulation,
         generations,
-        setGenerations,
         winnerIndex,
-        setWinnerIndex,
         mutationRate,
         setMutationRate,
-        timeoutId,
-        setTimeoutId,
         bestIndex,
         finished,
-        setFinished,
         stopped,
-        setStopped,
         population,
-        setPopulation,
         fitness,
         averageFitness,
-        possibleCharacters,
-        setPossibleCharacters,
         run,
         stop,
         resume,
       }}
     >
       {children}
-    </GAContext.Provider>
+    </CoinChangerGAContext.Provider>
   );
 };
 
-export default GAProvider;
+export default CoinChangerGAProvider;

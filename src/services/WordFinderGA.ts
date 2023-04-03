@@ -5,7 +5,7 @@ import {
   shuffleArray,
 } from "../utils/helpers";
 
-export class GeneticAlgorithm {
+export class WordFinderGeneticAlgorithm {
   expectedPhrase: string;
   bestPhrase: string;
   maxPopulation: number;

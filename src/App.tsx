@@ -1,12 +1,15 @@
 import { RouterProvider } from "react-router-dom";
-import GAProvider from "./context/GAContext";
+import WordFinderGAProvider from "./context/WordFinderGAContext";
 import router from "./routes";
+import CoinChangerGAProvider from "./context/CoinChangerGAContext";
 
 function App() {
   return (
-    <GAProvider>
-      <RouterProvider router={router} />
-    </GAProvider>
+    <WordFinderGAProvider>
+      <CoinChangerGAProvider>
+        <RouterProvider router={router} />
+      </CoinChangerGAProvider>
+    </WordFinderGAProvider>
   );
 }
 

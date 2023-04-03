@@ -1,9 +1,10 @@
-import { useGAContext } from "../../context/GAContext";
+import { useWordFinderGAContext } from "../../context/WordFinderGAContext";
 import Button from "../../components/atoms/Button";
 import Alert from "../../components/atoms/Alert";
 import GeneticAlgorithmFields from "../../components/GeneticAlgorithmFields";
-import PopulationSet from "./PopulationSet";
+import PopulationSet from "../../components/PopulationSet";
 import MainLayout from "../../layouts/MainLayout";
+import WordFinderSearchBar from "../../components/WordFinderSearchBar";
 
 function GeneticAlgorithm(): JSX.Element {
   const {
@@ -16,10 +17,10 @@ function GeneticAlgorithm(): JSX.Element {
     stop,
     stopped,
     finished,
-  } = useGAContext();
+  } = useWordFinderGAContext();
 
   return (
-    <MainLayout>
+    <MainLayout extraHeader={<WordFinderSearchBar />}>
       <>
         <div className="grid grid-cols-2 h-full mt-2 p-2">
           <div>
@@ -31,7 +32,7 @@ function GeneticAlgorithm(): JSX.Element {
             </h4>
             <p>{bestPhrase}</p>
 
-            <GeneticAlgorithmFields />
+            <GeneticAlgorithmFields contextFunc={useWordFinderGAContext} />
 
             <div className="mt-10 flex justify-center">
               {/* <Button onClick={resume}>Resume</Button> */}
