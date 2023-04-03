@@ -30,7 +30,7 @@ function SearchBar() {
           onChange={(event) => setValue(parseInt(event.target.value))}
         />
         <div className="w-1/4 text-center">
-          <Button>Change</Button>
+          <Button>Execute</Button>
         </div>
       </form>
     </div>

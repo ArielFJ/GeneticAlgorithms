@@ -16,7 +16,7 @@ function Input({
       onChange={onChange}
       type={type}
       placeholder={placeholder}
-      className={`border-b-2 pl-2 outline-none ${className}`}
+      className={`border-b-2 outline-none ${className ? className : "pl-2"}`}
       {...rest}
     />
   );

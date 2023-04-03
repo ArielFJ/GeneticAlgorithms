@@ -1,4 +1,4 @@
-import WordFinderSearchBar from "../components/WordFinderSearchBar";
+import SearchBar from "../views/GeneticAlgorithm/components/SearchBar";
 import { ROUTES } from "../routes/routes";
 import { Link } from "react-router-dom";
 

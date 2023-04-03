@@ -4,7 +4,7 @@ import Alert from "../../components/atoms/Alert";
 import GeneticAlgorithmFields from "../../components/GeneticAlgorithmFields";
 import PopulationSet from "../../components/PopulationSet";
 import MainLayout from "../../layouts/MainLayout";
-import WordFinderSearchBar from "../../components/WordFinderSearchBar";
+import SearchBar from "./components/SearchBar";
 
 function GeneticAlgorithm(): JSX.Element {
   const {
@@ -20,7 +20,7 @@ function GeneticAlgorithm(): JSX.Element {
   } = useWordFinderGAContext();
 
   return (
-    <MainLayout extraHeader={<WordFinderSearchBar />}>
+    <MainLayout extraHeader={<SearchBar />}>
       <>
         <div className="grid grid-cols-2 h-full mt-2 p-2">
           <div>

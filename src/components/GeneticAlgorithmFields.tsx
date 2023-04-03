@@ -35,7 +35,7 @@ function GeneticAlgorithmFields({ contextFunc }: { contextFunc: any} ) {
             Mutation rate: {(mutationRate * 100).toFixed(2)}%
           </p>
         </div>
-        <div>
+        <div className="flex flex-col w-2/3 gap-1">
           <Slider
             min={20}
             max={1000}

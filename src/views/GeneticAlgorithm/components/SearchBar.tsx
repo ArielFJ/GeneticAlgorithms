@@ -1,10 +1,10 @@
 import React from "react";
-import Button from "./atoms/Button";
-import Input from "./atoms/Input";
-import { useWordFinderGAContext } from "../context/WordFinderGAContext";
-import { checkForValidCharacters } from "../utils/helpers";
+import Button from "../../../components/atoms/Button";
+import Input from "../../../components/atoms/Input";
+import { useWordFinderGAContext } from "../../../context/WordFinderGAContext";
+import { checkForValidCharacters } from "../../../utils/helpers";
 
-function WordFinderSearchBar() {
+function SearchBar() {
   const { setExpectedPhrase, run } = useWordFinderGAContext();
   const [phrase, setPhrase] = React.useState<string>("");
 
@@ -29,11 +29,11 @@ function WordFinderSearchBar() {
           onChange={(event) => setPhrase(event.target.value)}
         />
         <div className="w-1/4 text-center">
-          <Button>Change</Button>
+          <Button>Execute</Button>
         </div>
       </form>
     </div>
   );
 }
 
-export default WordFinderSearchBar;
+export default SearchBar;
