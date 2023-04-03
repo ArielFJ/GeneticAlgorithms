@@ -71,7 +71,7 @@ export class WordFinderGeneticAlgorithm {
     expectedPhrase: string;
     maxPopulation: number;
     mutationRate: number;
-    onNewGen?: (p: GAParameters) => void;
+    onNewGen?: (p: GAParameters<string[]>) => void;
     waitTime?: number;
   }) {
     this.expectedPhrase = expectedPhrase;
@@ -99,7 +99,7 @@ export class WordFinderGeneticAlgorithm {
       onNewGen({
         population: this.population,
         fitness: this.fitness,
-        bestPhrase: this.bestPhrase,
+        bestSolution: this.bestPhrase.split(""),
         generations: this.generations,
         bestIndex: this.bestIndex,
         avgFitness: this.avgFitness,

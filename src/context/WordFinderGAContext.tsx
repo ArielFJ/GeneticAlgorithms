@@ -43,10 +43,10 @@ const WordFinderGAProvider = ({ children }: { children: React.ReactNode }) => {
   const [fitness, setFitness] = useState<number[]>([]);
   const [averageFitness, setAverageFitness] = useState<number>(0);
 
-  const onNewGeneration = (params: GAParameters) => {
+  const onNewGeneration = (params: GAParameters<string[]>) => {
     setPopulation(params.population);
     setFitness(params.fitness);
-    setBestPhrase(params.bestPhrase);
+    setBestPhrase(params.bestSolution.join(""));
     setGenerations(params.generations);
     setBestIndex(params.bestIndex);
     setAverageFitness(params.avgFitness);

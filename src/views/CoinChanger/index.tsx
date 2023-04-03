@@ -32,16 +32,39 @@ function CoinChanger(): JSX.Element {
         <div className="grid grid-cols-2 h-full mt-2 p-2">
           <div>
             <h4 className="text-xl font-semibold">Available Coins</h4>
-            <p>{JSON.stringify(COIN_SET)}</p>
+            <p>
+              {COIN_SET.map((coin, index) => (
+                <span
+                  key={index}
+                  className="border-b-2 border-b-green-500 mr-4"
+                >
+                  ${coin}
+                </span>
+              ))}
+            </p>
 
-            <h4 className="text-xl font-semibold mt-10">Expected coins:</h4>
-            <p>{expectedCoinSum}</p>
+            <h4 className="text-xl font-semibold mt-10">Expected Value:</h4>
+            <p>$ {expectedCoinSum}</p>
 
             <h4 className="text-xl font-semibold mt-10">
               Best solution:{" "}
               {bestIndex > -1 ? `(at position ${bestIndex})` : ""}
             </h4>
-            <p>{bestSolution.join(",")}</p>
+            {finished && COIN_SET.map((coin, index) =>
+              bestSolution[index] > 0 ? (
+                <p key={index}>
+                  <span className="border-b-2 border-b-red-400">
+                    # {bestSolution[index]}
+                  </span>{" "}
+                  coin(s) of{" "}
+                  <span className="border-b-2 border-b-green-500 mr-2">
+                    ${coin}
+                  </span>
+                </p>
+              ) : (
+                <></>
+              )
+            )}
 
             <GeneticAlgorithmFields contextFunc={useCoinChangerGAContext} />
 

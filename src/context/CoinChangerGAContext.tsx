@@ -33,10 +33,10 @@ const ga: CoinChangerGeneticAlgorithm = new CoinChangerGeneticAlgorithm();
 const CoinChangerGAProvider = ({ children }: { children: React.ReactNode }) => {
   const [expectedCoinSum, setExpectedCoinSum] = useState<number>(0);
   const [bestSolution, setBestSolution] = useState<number[]>([]);
-  const [maxPopulation, setMaxPopulation] = useState<number>(200);
+  const [maxPopulation, setMaxPopulation] = useState<number>(500);
   const [generations, setGenerations] = useState<number>(0);
   const [winnerIndex, setWinnerIndex] = useState<number>(0);
-  const [mutationRate, setMutationRate] = useState<number>(0.01);
+  const [mutationRate, setMutationRate] = useState<number>(0.035);
   const [bestIndex, setBestIndex] = useState<number>(-1);
   const [finished, setFinished] = useState<boolean>(false);
   const [stopped, setStopped] = useState<boolean>(false);
